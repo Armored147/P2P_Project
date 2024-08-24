@@ -1,14 +1,25 @@
 syntax = "proto3";
 
-service FileService {
-  rpc UploadFile(FileRequest) returns (FileResponse);
-  rpc DownloadFile(FileRequest) returns (FileResponse);
-}
-
 message FileRequest {
-  string filename = 1;
+    string filename = 1;
 }
 
 message FileResponse {
-  string message = 1;
+    string message = 1;
+}
+
+message FindSuccessorRequest {
+    int64 id = 1;
+}
+
+message FindSuccessorResponse {
+    string ip = 1;
+    int32 port = 2;
+    int64 id = 3;
+}
+
+service FileService {
+    rpc UploadFile (FileRequest) returns (FileResponse);
+    rpc DownloadFile (FileRequest) returns (FileResponse);
+    rpc FindSuccessor (FindSuccessorRequest) returns (FindSuccessorResponse);
 }
