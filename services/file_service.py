@@ -1,7 +1,8 @@
 from concurrent import futures
 import grpc
 from services import fileservice_pb2_grpc as pb2_grpc
-from services import fileservice_pb2 as pb2
+from . import fileservice_pb2 as pb2
+from . import chordNode
 import time
 
 class FileService(pb2_grpc.FileServiceServicer):
@@ -19,6 +20,19 @@ class FileService(pb2_grpc.FileServiceServicer):
     def FindSuccessor(self, request, context):
         successor = self.chord_node.find_successor(request.id)
         return pb2.FindSuccessorResponse(ip=successor.ip, port=successor.port, id=successor.id)
+    
+    
+    def Notify(self, request, context):
+        self.chord_node.notify(request.ip, request.port, request.id)
+        return pb2.Empty()
+    
+    def GetPredecessor(self, request, context):
+        predecessor = self.chord_node.predecessor
+        if predecessor:
+            return pb2.GetPredecessorResponse(ip=predecessor.ip, port=predecessor.port, id=predecessor.id)
+        return pb2.GetPredecessorResponse(ip="", port=0, id=0)
+
+#--------------------------------------------------------------
 
 def serve(config, chord_node):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

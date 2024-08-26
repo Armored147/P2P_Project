@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from services import fileservice_pb2 as proto_dot_fileservice__pb2
+import services.fileservice_pb2 as fileservice__pb2
 
 GRPC_GENERATED_VERSION = '1.65.5'
 GRPC_VERSION = grpc.__version__
@@ -20,7 +20,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in proto/fileservice_pb2_grpc.py depends on'
+        + f' but the generated code in fileservice_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -41,18 +41,28 @@ class FileServiceStub(object):
         """
         self.UploadFile = channel.unary_unary(
                 '/FileService/UploadFile',
-                request_serializer=proto_dot_fileservice__pb2.FileRequest.SerializeToString,
-                response_deserializer=proto_dot_fileservice__pb2.FileResponse.FromString,
+                request_serializer=fileservice__pb2.FileRequest.SerializeToString,
+                response_deserializer=fileservice__pb2.FileResponse.FromString,
                 _registered_method=True)
         self.DownloadFile = channel.unary_unary(
                 '/FileService/DownloadFile',
-                request_serializer=proto_dot_fileservice__pb2.FileRequest.SerializeToString,
-                response_deserializer=proto_dot_fileservice__pb2.FileResponse.FromString,
+                request_serializer=fileservice__pb2.FileRequest.SerializeToString,
+                response_deserializer=fileservice__pb2.FileResponse.FromString,
                 _registered_method=True)
         self.FindSuccessor = channel.unary_unary(
                 '/FileService/FindSuccessor',
-                request_serializer=proto_dot_fileservice__pb2.FindSuccessorRequest.SerializeToString,
-                response_deserializer=proto_dot_fileservice__pb2.FindSuccessorResponse.FromString,
+                request_serializer=fileservice__pb2.FindSuccessorRequest.SerializeToString,
+                response_deserializer=fileservice__pb2.FindSuccessorResponse.FromString,
+                _registered_method=True)
+        self.Notify = channel.unary_unary(
+                '/FileService/Notify',
+                request_serializer=fileservice__pb2.NotifyRequest.SerializeToString,
+                response_deserializer=fileservice__pb2.Empty.FromString,
+                _registered_method=True)
+        self.GetPredecessor = channel.unary_unary(
+                '/FileService/GetPredecessor',
+                request_serializer=fileservice__pb2.Empty.SerializeToString,
+                response_deserializer=fileservice__pb2.GetPredecessorResponse.FromString,
                 _registered_method=True)
 
 
@@ -77,23 +87,45 @@ class FileServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Notify(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetPredecessor(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_FileServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'UploadFile': grpc.unary_unary_rpc_method_handler(
                     servicer.UploadFile,
-                    request_deserializer=proto_dot_fileservice__pb2.FileRequest.FromString,
-                    response_serializer=proto_dot_fileservice__pb2.FileResponse.SerializeToString,
+                    request_deserializer=fileservice__pb2.FileRequest.FromString,
+                    response_serializer=fileservice__pb2.FileResponse.SerializeToString,
             ),
             'DownloadFile': grpc.unary_unary_rpc_method_handler(
                     servicer.DownloadFile,
-                    request_deserializer=proto_dot_fileservice__pb2.FileRequest.FromString,
-                    response_serializer=proto_dot_fileservice__pb2.FileResponse.SerializeToString,
+                    request_deserializer=fileservice__pb2.FileRequest.FromString,
+                    response_serializer=fileservice__pb2.FileResponse.SerializeToString,
             ),
             'FindSuccessor': grpc.unary_unary_rpc_method_handler(
                     servicer.FindSuccessor,
-                    request_deserializer=proto_dot_fileservice__pb2.FindSuccessorRequest.FromString,
-                    response_serializer=proto_dot_fileservice__pb2.FindSuccessorResponse.SerializeToString,
+                    request_deserializer=fileservice__pb2.FindSuccessorRequest.FromString,
+                    response_serializer=fileservice__pb2.FindSuccessorResponse.SerializeToString,
+            ),
+            'Notify': grpc.unary_unary_rpc_method_handler(
+                    servicer.Notify,
+                    request_deserializer=fileservice__pb2.NotifyRequest.FromString,
+                    response_serializer=fileservice__pb2.Empty.SerializeToString,
+            ),
+            'GetPredecessor': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetPredecessor,
+                    request_deserializer=fileservice__pb2.Empty.FromString,
+                    response_serializer=fileservice__pb2.GetPredecessorResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -121,8 +153,8 @@ class FileService(object):
             request,
             target,
             '/FileService/UploadFile',
-            proto_dot_fileservice__pb2.FileRequest.SerializeToString,
-            proto_dot_fileservice__pb2.FileResponse.FromString,
+            fileservice__pb2.FileRequest.SerializeToString,
+            fileservice__pb2.FileResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -148,8 +180,8 @@ class FileService(object):
             request,
             target,
             '/FileService/DownloadFile',
-            proto_dot_fileservice__pb2.FileRequest.SerializeToString,
-            proto_dot_fileservice__pb2.FileResponse.FromString,
+            fileservice__pb2.FileRequest.SerializeToString,
+            fileservice__pb2.FileResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -175,8 +207,62 @@ class FileService(object):
             request,
             target,
             '/FileService/FindSuccessor',
-            proto_dot_fileservice__pb2.FindSuccessorRequest.SerializeToString,
-            proto_dot_fileservice__pb2.FindSuccessorResponse.FromString,
+            fileservice__pb2.FindSuccessorRequest.SerializeToString,
+            fileservice__pb2.FindSuccessorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Notify(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/FileService/Notify',
+            fileservice__pb2.NotifyRequest.SerializeToString,
+            fileservice__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetPredecessor(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/FileService/GetPredecessor',
+            fileservice__pb2.Empty.SerializeToString,
+            fileservice__pb2.GetPredecessorResponse.FromString,
             options,
             channel_credentials,
             insecure,

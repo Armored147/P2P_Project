@@ -18,8 +18,24 @@ message FindSuccessorResponse {
     int64 id = 3;
 }
 
+message NotifyRequest {
+    string ip = 1;
+    int32 port = 2;
+    int32 id = 3;
+}
+
+message GetPredecessorResponse {
+    string ip = 1;
+    int32 port = 2;
+    int64 id = 3;
+}
+
+message Empty {}
+
 service FileService {
     rpc UploadFile (FileRequest) returns (FileResponse);
     rpc DownloadFile (FileRequest) returns (FileResponse);
     rpc FindSuccessor (FindSuccessorRequest) returns (FindSuccessorResponse);
+    rpc Notify(NotifyRequest) returns (Empty);
+    rpc GetPredecessor(Empty) returns (GetPredecessorResponse);
 }
