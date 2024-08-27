@@ -30,6 +30,19 @@ message GetPredecessorResponse {
     int64 id = 3;
 }
 
+message node {
+    string ip = 1;
+    int32 port = 2;
+}
+
+message fingerTable {
+    int32 index = 1;
+    int32 node_leave_id = 2;
+    string ip = 3;
+    int32 port = 4;
+
+}
+
 message Empty {}
 
 service FileService {
@@ -38,4 +51,7 @@ service FileService {
     rpc FindSuccessor (FindSuccessorRequest) returns (FindSuccessorResponse);
     rpc Notify(NotifyRequest) returns (Empty);
     rpc GetPredecessor(Empty) returns (GetPredecessorResponse);
+    rpc UpdatePredecessor(node) returns (Empty);
+    rpc UpdateSucesor(node) returns (Empty);
+    rpc UpdateFingerTable(fingerTable) returns (Empty);
 }

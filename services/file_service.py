@@ -23,7 +23,8 @@ class FileService(pb2_grpc.FileServiceServicer):
     
     
     def Notify(self, request, context):
-        self.chord_node.notify(request.ip, request.port, request.id)
+        node = chordNode.ChordNode(request.ip, request.port, self.chord_node.m)
+        self.chord_node.notify(node)
         return pb2.Empty()
     
     def GetPredecessor(self, request, context):
@@ -31,6 +32,19 @@ class FileService(pb2_grpc.FileServiceServicer):
         if predecessor:
             return pb2.GetPredecessorResponse(ip=predecessor.ip, port=predecessor.port, id=predecessor.id)
         return pb2.GetPredecessorResponse(ip="", port=0, id=0)
+    
+    def UpdatePredecessor(self, request, context):
+        self.chord_node.update_predecessor(chordNode.ChordNode(request.ip, request.port, self.chord_node.m))
+        return pb2.Empty()
+
+    def UpdateSucesor(self, request, context):
+        self.chord_node.update_sucesor(chordNode.ChordNode(request.ip, request.port, self.chord_node.m))
+        return pb2.Empty()
+
+    def UpdateFingerTable(self, request, context):
+        self.chord_node.update_finger_table(chordNode.ChordNode(request.ip, request.port, self.chord_node.m), request.node_leave_id, request.index)
+        return pb2.Empty()
+
 
 #--------------------------------------------------------------
 

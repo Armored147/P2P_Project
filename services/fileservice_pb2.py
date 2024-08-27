@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11\x66ileservice.proto\"\x1f\n\x0b\x46ileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"\x1f\n\x0c\x46ileResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"\"\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x03\"=\n\x15\x46indSuccessorResponse\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\n\n\x02id\x18\x03 \x01(\x03\"5\n\rNotifyRequest\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\n\n\x02id\x18\x03 \x01(\x05\">\n\x16GetPredecessorResponse\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\n\n\x02id\x18\x03 \x01(\x03\"\x07\n\x05\x45mpty2\xfa\x01\n\x0b\x46ileService\x12)\n\nUploadFile\x12\x0c.FileRequest\x1a\r.FileResponse\x12+\n\x0c\x44ownloadFile\x12\x0c.FileRequest\x1a\r.FileResponse\x12>\n\rFindSuccessor\x12\x15.FindSuccessorRequest\x1a\x16.FindSuccessorResponse\x12 \n\x06Notify\x12\x0e.NotifyRequest\x1a\x06.Empty\x12\x31\n\x0eGetPredecessor\x12\x06.Empty\x1a\x17.GetPredecessorResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11\x66ileservice.proto\"\x1f\n\x0b\x46ileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"\x1f\n\x0c\x46ileResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"\"\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x03\"=\n\x15\x46indSuccessorResponse\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\n\n\x02id\x18\x03 \x01(\x03\"5\n\rNotifyRequest\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\n\n\x02id\x18\x03 \x01(\x05\">\n\x16GetPredecessorResponse\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\n\n\x02id\x18\x03 \x01(\x03\" \n\x04node\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\"M\n\x0b\x66ingerTable\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x15\n\rnode_leave_id\x18\x02 \x01(\x05\x12\n\n\x02ip\x18\x03 \x01(\t\x12\x0c\n\x04port\x18\x04 \x01(\x05\"\x07\n\x05\x45mpty2\xe9\x02\n\x0b\x46ileService\x12)\n\nUploadFile\x12\x0c.FileRequest\x1a\r.FileResponse\x12+\n\x0c\x44ownloadFile\x12\x0c.FileRequest\x1a\r.FileResponse\x12>\n\rFindSuccessor\x12\x15.FindSuccessorRequest\x1a\x16.FindSuccessorResponse\x12 \n\x06Notify\x12\x0e.NotifyRequest\x1a\x06.Empty\x12\x31\n\x0eGetPredecessor\x12\x06.Empty\x1a\x17.GetPredecessorResponse\x12\"\n\x11UpdatePredecessor\x12\x05.node\x1a\x06.Empty\x12\x1e\n\rUpdateSucesor\x12\x05.node\x1a\x06.Empty\x12)\n\x11UpdateFingerTable\x12\x0c.fingerTable\x1a\x06.Emptyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,8 +33,12 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_NOTIFYREQUEST']._serialized_end=239
   _globals['_GETPREDECESSORRESPONSE']._serialized_start=241
   _globals['_GETPREDECESSORRESPONSE']._serialized_end=303
-  _globals['_EMPTY']._serialized_start=305
-  _globals['_EMPTY']._serialized_end=312
-  _globals['_FILESERVICE']._serialized_start=315
-  _globals['_FILESERVICE']._serialized_end=565
+  _globals['_NODE']._serialized_start=305
+  _globals['_NODE']._serialized_end=337
+  _globals['_FINGERTABLE']._serialized_start=339
+  _globals['_FINGERTABLE']._serialized_end=416
+  _globals['_EMPTY']._serialized_start=418
+  _globals['_EMPTY']._serialized_end=425
+  _globals['_FILESERVICE']._serialized_start=428
+  _globals['_FILESERVICE']._serialized_end=789
 # @@protoc_insertion_point(module_scope)

@@ -21,16 +21,30 @@ def run_node(ip, port, known_ip=None, known_port=None):
         print("No known node provided, this will be the first node in the network.")
         node.join()
 
+
+    # NOTA: El gRPC no puede con mas de 4 nodos 
+
     # Menu loop
     while True:
         print("\nMenu:")
         print("1. Print Finger Table")
-        print("2. Exit")
+        print("2. Predecessor")
+        print("3. Successor")
+        print("4. Check Health")
+        print("5. Exit")
         choice = input("Enter your choice: ")
         if choice == '1':
-            node.print_finger_table()
+            node.print_finger_table2()
         elif choice == '2':
+            node.print_predecessor()
+        elif choice == '3':
+            node.print_successor()
+        elif choice == '4':
+            node.health_check()
+        elif choice == '5':
             print("Exiting...")
+            node.leave_network()
+            node.stop_server()
             break
         else:
             print("Invalid choice. Please try again.")

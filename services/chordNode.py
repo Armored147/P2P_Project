@@ -1,10 +1,13 @@
 import grpc
 import hashlib
 from services import fileservice_pb2_grpc as pb2_grpc
-from services import fileservice_pb2 as pb2
+from . import fileservice_pb2 as pb2
 from concurrent import futures
 import time
 from services.file_service import FileService
+from grpc_health.v1 import health
+from grpc_health.v1 import health_pb2
+from grpc_health.v1 import health_pb2_grpc
 
 class ChordNode:
     def __init__(self, ip, port, m=5):
@@ -12,7 +15,16 @@ class ChordNode:
         self.port = port
         self.m = m
         self.id = self.hash_ip_port(ip, port)
-        self.finger_table = [None] * m
+        self.finger_table = []
+        
+        for i in range(m):
+            entry = {
+                'start': (self.id + 2**i) % 2**m,  # Cálculo de la posición
+                'interval': ((self.id + 2**i) % 2**m, (self.id + 2**(i+1)) % 2**m),  # Intervalo que cubre esta entrada
+                'successor': None  # Sucesor responsable de este intervalo
+            }
+            self.finger_table.append(entry)
+        
         self.successor = None
         self.predecessor = None
 
@@ -38,11 +50,12 @@ class ChordNode:
 
     def closest_preceding_node(self, id):
         for i in range(self.m - 1, -1, -1):
-            if self.finger_table[i] and (
-                    (self.id < self.finger_table[i].id < id) or
-                    (self.id > self.finger_table[i].id and self.finger_table[i].id < id) or
-                    (self.id < self.finger_table[i].id and self.finger_table[i].id > id)):
-                return self.finger_table[i]
+            successor = self.finger_table[i]['successor']
+            if successor is not None and (
+                    (self.id < successor.id < id) or
+                    (self.id > successor.id and successor.id < id) or
+                    (self.id < successor.id and successor.id > id)):
+                return successor
         return self
 
     def join(self, known_ip=None, known_port=None):
@@ -52,7 +65,7 @@ class ChordNode:
                 stub = pb2_grpc.FileServiceStub(channel)
                 response = stub.FindSuccessor(pb2.FindSuccessorRequest(id=self.id))
                 self.successor = ChordNode(response.ip, response.port, m=self.m)
-                self.predecessor = None
+                self.predecessor = self
                 if self.successor:
                     print(f"Node {self.id} joined with successor {self.successor.id}")
                     self.stabilize()
@@ -64,7 +77,7 @@ class ChordNode:
             self.predecessor = self
             self.successor = self
             for i in range(self.m):
-                self.finger_table[i] = self
+                self.update_successor(i, self)
 
     def stabilize(self):
         if self.successor:
@@ -72,12 +85,12 @@ class ChordNode:
                 with grpc.insecure_channel(f'{self.successor.ip}:{self.successor.port}') as channel:
                     stub = pb2_grpc.FileServiceStub(channel)
                     response = stub.GetPredecessor(pb2.Empty())
-                    if response.ip and response.ip != self.ip:
+                    if response.id:
                         x = ChordNode(response.ip, response.port, m=self.m)
                         if ((self.id < x.id < self.successor.id) or
-                            (self.id > self.successor.id and (x.id > self.id or x.id < self.successor.id))):
+                            (self.id >= self.successor.id and (x.id > self.id or x.id < self.successor.id))):
                             self.successor = x
-                    self.successor.notify(self)
+                    stub.Notify(pb2.NotifyRequest(ip=self.ip, port=self.port, id=self.id))
             except grpc.RpcError as e:
                 print(f"Stabilization failed with error: {e}")
         else:
@@ -85,26 +98,65 @@ class ChordNode:
 
     def notify(self, node):
         if not self.predecessor or (
-                (self.predecessor and (self.predecessor.id > self.id and node.id < self.predecessor.id)) or
-                (self.predecessor and self.predecessor.id < self.id and node.id > self.predecessor.id)):
+            (self.predecessor.id <= self.id and self.predecessor.id < node.id < self.id) or 
+            (self.predecessor.id >= self.id and (node.id > self.predecessor.id or node.id < self.id))
+        ):
+            #print(f"Node {self.id} updated its predecessor to Node {node.id}")
             self.predecessor = node
 
+ 
     def fix_fingers(self):
         for i in range(self.m):
             start = (self.id + 2 ** i) % (2 ** self.m)
-            self.finger_table[i] = self.find_successor(start)
+            successor = self.find_successor(start)
+            self.finger_table[i]['start'] = start
+            self.finger_table[i]['interval'] = (start, (start + 2 ** i) % (2 ** self.m))
+            self.finger_table[i]['successor'] = successor
+            
+    def leave_network(self):
+        if self.successor:
+            successor = self.successor
+            with grpc.insecure_channel(f'{successor.ip}:{successor.port}') as channel:
+                stub = pb2_grpc.FileServiceStub(channel)
+                stub.UpdatePredecessor(pb2.node(ip=self.predecessor.ip, port=self.predecessor.port))
+            
+        if self.predecessor:
+            predecessor = self.predecessor
+            with grpc.insecure_channel(f'{predecessor.ip}:{predecessor.port}') as channel:
+                stub = pb2_grpc.FileServiceStub(channel)
+                stub.UpdateSucesor(pb2.node(ip=self.successor.ip, port=self.successor.port))
+        
+        for i in range(self.m):
+            start = (self.id + 2 ** i) % (2 ** self.m)
+            successor = self.find_successor(start)
+            
+            with grpc.insecure_channel(f'{successor.ip}:{successor.port}') as channel:
+                stub = pb2_grpc.FileServiceStub(channel)
+                stub.UpdateFingerTable(pb2.fingerTable(ip=self.successor.ip, port=self.successor.port, index=i, node_leave_id=self.id))
+    
+    def update_finger_table(self, node_successor, node_leave_id, index):        
+        # Verificar si el sucesor actual es el nodo que se está yendo
+        if self.finger_table[index]['successor'].id == node_leave_id:
+            self.finger_table[index]['successor'] = node_successor
 
-    def print_finger_table(self):
-        print(f"Finger table for node {self.id}:")
-        for i, entry in enumerate(self.finger_table):
-            if entry:
-                print(f"Entry {i}: Node ID {entry.id}, Address: {entry.ip}:{entry.port}")
-            else:
-                print(f"Entry {i}: None")
+    def update_predecessor(self, node):
+        self.predecessor = node
+        
+    def update_sucesor(self, node):
+        self.successor = node
 
     def start_server(self):
+        global server
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         pb2_grpc.add_FileServiceServicer_to_server(FileService(self), server)
+        
+        health_servicer = health.HealthServicer()
+        # health check service - add this service to server
+        health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(), server)
+        
+        # Setear el estado de salud inicial a "SERVING"
+        health_servicer.set('', health_pb2.HealthCheckResponse.SERVING)
+        
         server.add_insecure_port(f"{self.ip}:{self.port}")
         server.start()
         try:
@@ -114,3 +166,67 @@ class ChordNode:
                 time.sleep(5)
         except KeyboardInterrupt:
             server.stop(0)
+            
+    def stop_server(self):
+        global server
+        server.stop(grace=5)  # Espera hasta 5 segundos para completar las solicitudes activas
+        print(f"Servidor gRPC detenido en {self.ip}:{self.port}")
+
+
+#--------------------------------------------------------------
+
+    def print_predecessor(self):
+        if self.predecessor:
+            print(f"\nPredecessor for node {self.id}: Node ID {self.predecessor.id}, Address: {self.predecessor.ip}:{self.predecessor.port}")
+        else:
+            print(f"\nPredecessor for node {self.id}: None")
+    
+    def print_successor(self):
+        if self.successor:
+            print(f"\nSuccessor for node {self.id}: Node ID {self.successor.id}, Address: {self.successor.ip}:{self.successor.port}")
+        else:
+            print(f"\nSuccessor for node {self.id}: None")
+            
+    def print_finger_table(self):
+        print(f"Finger table for node {self.id}:")
+        for i, entry in enumerate(self.finger_table):
+            if entry:
+                print(f"Entry {i}: Node ID {entry.id}, Address: {entry.ip}:{entry.port}")
+            else:
+                print(f"Entry {i}: None")
+            
+    def print_finger_table2(self):
+        print(f"Finger table for node {self.id}:")
+        for i, entry in enumerate(self.finger_table):
+            start = entry['start']
+            interval = entry['interval']
+            successor = entry['successor']
+            
+            if successor is not None:
+                # Asumiendo que 'successor' es un objeto nodo con atributos 'id', 'ip', y 'port'
+                print(f"Entry {i}:")
+                print(f"  Start: {start}")
+                print(f"  Interval: [{interval[0]}, {interval[1]})")
+                print(f"  Successor: Node ID {successor.id}, Address: {successor.ip}:{successor.port}")
+            else:
+                print(f"Entry {i}:")
+                print(f"  Start: {start}")
+                print(f"  Interval: [{interval[0]}, {interval[1]})")
+                print(f"  Successor: None")
+
+            
+
+    def update_successor(self, index, successor):
+        self.finger_table[index]['successor'] = successor
+
+    def get_successor(self, key):
+        for entry in self.table:
+            if entry['interval'][0] <= key < entry['interval'][1]:
+                return entry['successor']
+        return None
+    
+    def health_check(self):
+        with grpc.insecure_channel(f"{self.ip}:{self.port}") as channel:
+            stub = health_pb2_grpc.HealthStub(channel)
+            response = stub.Check(health_pb2.HealthCheckRequest(service=''))
+            print(response.status)  # Debería imprimir "SERVING"

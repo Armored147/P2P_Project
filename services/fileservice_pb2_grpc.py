@@ -64,6 +64,21 @@ class FileServiceStub(object):
                 request_serializer=fileservice__pb2.Empty.SerializeToString,
                 response_deserializer=fileservice__pb2.GetPredecessorResponse.FromString,
                 _registered_method=True)
+        self.UpdatePredecessor = channel.unary_unary(
+                '/FileService/UpdatePredecessor',
+                request_serializer=fileservice__pb2.node.SerializeToString,
+                response_deserializer=fileservice__pb2.Empty.FromString,
+                _registered_method=True)
+        self.UpdateSucesor = channel.unary_unary(
+                '/FileService/UpdateSucesor',
+                request_serializer=fileservice__pb2.node.SerializeToString,
+                response_deserializer=fileservice__pb2.Empty.FromString,
+                _registered_method=True)
+        self.UpdateFingerTable = channel.unary_unary(
+                '/FileService/UpdateFingerTable',
+                request_serializer=fileservice__pb2.fingerTable.SerializeToString,
+                response_deserializer=fileservice__pb2.Empty.FromString,
+                _registered_method=True)
 
 
 class FileServiceServicer(object):
@@ -99,6 +114,24 @@ class FileServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdatePredecessor(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateSucesor(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateFingerTable(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_FileServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -126,6 +159,21 @@ def add_FileServiceServicer_to_server(servicer, server):
                     servicer.GetPredecessor,
                     request_deserializer=fileservice__pb2.Empty.FromString,
                     response_serializer=fileservice__pb2.GetPredecessorResponse.SerializeToString,
+            ),
+            'UpdatePredecessor': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdatePredecessor,
+                    request_deserializer=fileservice__pb2.node.FromString,
+                    response_serializer=fileservice__pb2.Empty.SerializeToString,
+            ),
+            'UpdateSucesor': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateSucesor,
+                    request_deserializer=fileservice__pb2.node.FromString,
+                    response_serializer=fileservice__pb2.Empty.SerializeToString,
+            ),
+            'UpdateFingerTable': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateFingerTable,
+                    request_deserializer=fileservice__pb2.fingerTable.FromString,
+                    response_serializer=fileservice__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -263,6 +311,87 @@ class FileService(object):
             '/FileService/GetPredecessor',
             fileservice__pb2.Empty.SerializeToString,
             fileservice__pb2.GetPredecessorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdatePredecessor(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/FileService/UpdatePredecessor',
+            fileservice__pb2.node.SerializeToString,
+            fileservice__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateSucesor(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/FileService/UpdateSucesor',
+            fileservice__pb2.node.SerializeToString,
+            fileservice__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateFingerTable(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/FileService/UpdateFingerTable',
+            fileservice__pb2.fingerTable.SerializeToString,
+            fileservice__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
