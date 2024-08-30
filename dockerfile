@@ -14,7 +14,7 @@ COPY . /P2P_Project/
 RUN curl -s http://169.254.169.254/latest/meta-data/public-ipv4 > /tmp/public-ip.txt
 
 # Luego, léelo en una variable de entorno
-RUN export PUBLIC_IP=$(cat /tmp/public-ip.txt)
+RUN export PUBLIC_IP=$(cat ./tmp/public-ip.txt)
 
 
 CMD ["python", "./run_node.py", "44.223.125.103", "7000"]
