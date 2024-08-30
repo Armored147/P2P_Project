@@ -1,9 +1,10 @@
 import grpc
 import hashlib
-from services import fileservice_pb2_grpc as pb2_grpc
-from . import fileservice_pb2 as pb2
 from concurrent import futures
 import time
+from tabulate import tabulate
+from services import fileservice_pb2_grpc as pb2_grpc
+from . import fileservice_pb2 as pb2
 from services.file_service import FileService
 from grpc_health.v1 import health
 from grpc_health.v1 import health_pb2
@@ -114,6 +115,13 @@ class ChordNode:
             self.finger_table[i]['successor'] = successor
             
     def leave_network(self):
+        with grpc.insecure_channel(f'{self.successor.ip}:{self.successor.port}') as channel:
+            stub = pb2_grpc.FileServiceStub(channel)
+            try:
+                stub.UpdateFingerTable(pb2.fingerTable(node_leave_id=self.id, ip=self.successor.ip, port=self.successor.port))
+            except grpc.RpcError as e:
+                print(f"Failed update FT: {e}")
+        
         if self.successor:
             successor = self.successor
             with grpc.insecure_channel(f'{successor.ip}:{successor.port}') as channel:
@@ -125,19 +133,23 @@ class ChordNode:
             with grpc.insecure_channel(f'{predecessor.ip}:{predecessor.port}') as channel:
                 stub = pb2_grpc.FileServiceStub(channel)
                 stub.UpdateSucesor(pb2.node(ip=self.successor.ip, port=self.successor.port))
-        
-        for i in range(self.m):
-            start = (self.id + 2 ** i) % (2 ** self.m)
-            successor = self.find_successor(start)
-            
-            with grpc.insecure_channel(f'{successor.ip}:{successor.port}') as channel:
-                stub = pb2_grpc.FileServiceStub(channel)
-                stub.UpdateFingerTable(pb2.fingerTable(ip=self.successor.ip, port=self.successor.port, index=i, node_leave_id=self.id))
-    
-    def update_finger_table(self, node_successor, node_leave_id, index):        
-        # Verificar si el sucesor actual es el nodo que se está yendo
-        if self.finger_table[index]['successor'].id == node_leave_id:
-            self.finger_table[index]['successor'] = node_successor
+
+
+    def update_finger_table(self, node_leave_id, successor_ip, successor_port):
+        try:
+            for index in range(self.m):
+                if self.finger_table[index]['successor'].id == node_leave_id:
+                    self.finger_table[index]['successor'] = ChordNode(successor_ip, successor_port, m=self.m)
+
+            if self.successor.id != node_leave_id:
+                with grpc.insecure_channel(f'{self.successor.ip}:{self.successor.port}') as channel:
+                    stub = pb2_grpc.FileServiceStub(channel)
+                    try:
+                        stub.UpdateFingerTable(pb2.fingerTable(node_leave_id=node_leave_id, ip=successor_ip, port=successor_port))
+                    except grpc.RpcError as e:
+                        print(f"Failed to update finger table: {e}")
+        except Exception as e:
+            print(f"Error updating finger table: {e}")
 
     def update_predecessor(self, node):
         self.predecessor = node
@@ -169,7 +181,7 @@ class ChordNode:
             
     def stop_server(self):
         global server
-        server.stop(grace=5)  # Espera hasta 5 segundos para completar las solicitudes activas
+        server.stop(grace=10)  # Espera hasta 5 segundos para completar las solicitudes activas
         print(f"Servidor gRPC detenido en {self.ip}:{self.port}")
 
 
@@ -196,25 +208,9 @@ class ChordNode:
                 print(f"Entry {i}: None")
             
     def print_finger_table2(self):
-        print(f"Finger table for node {self.id}:")
-        for i, entry in enumerate(self.finger_table):
-            start = entry['start']
-            interval = entry['interval']
-            successor = entry['successor']
-            
-            if successor is not None:
-                # Asumiendo que 'successor' es un objeto nodo con atributos 'id', 'ip', y 'port'
-                print(f"Entry {i}:")
-                print(f"  Start: {start}")
-                print(f"  Interval: [{interval[0]}, {interval[1]})")
-                print(f"  Successor: Node ID {successor.id}, Address: {successor.ip}:{successor.port}")
-            else:
-                print(f"Entry {i}:")
-                print(f"  Start: {start}")
-                print(f"  Interval: [{interval[0]}, {interval[1]})")
-                print(f"  Successor: None")
+        print(f"\nFinger table for node {self.id}:")
+        print(tabulate([[entry['start'], entry['interval'], entry['successor'].id if entry['successor'] else None] for entry in self.finger_table], headers=['Start', 'Interval', 'Successor']))
 
-            
 
     def update_successor(self, index, successor):
         self.finger_table[index]['successor'] = successor
@@ -229,4 +225,4 @@ class ChordNode:
         with grpc.insecure_channel(f"{self.ip}:{self.port}") as channel:
             stub = health_pb2_grpc.HealthStub(channel)
             response = stub.Check(health_pb2.HealthCheckRequest(service=''))
-            print(response.status)  # Debería imprimir "SERVING"
+            print(response.status) 

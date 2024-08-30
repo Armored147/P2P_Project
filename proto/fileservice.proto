@@ -36,11 +36,9 @@ message node {
 }
 
 message fingerTable {
-    int32 index = 1;
-    int32 node_leave_id = 2;
-    string ip = 3;
-    int32 port = 4;
-
+    int32 node_leave_id = 1;
+    string ip = 2;
+    int32 port = 3;
 }
 
 message Empty {}

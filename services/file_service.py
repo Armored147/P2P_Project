@@ -21,7 +21,6 @@ class FileService(pb2_grpc.FileServiceServicer):
         successor = self.chord_node.find_successor(request.id)
         return pb2.FindSuccessorResponse(ip=successor.ip, port=successor.port, id=successor.id)
     
-    
     def Notify(self, request, context):
         node = chordNode.ChordNode(request.ip, request.port, self.chord_node.m)
         self.chord_node.notify(node)
@@ -42,7 +41,7 @@ class FileService(pb2_grpc.FileServiceServicer):
         return pb2.Empty()
 
     def UpdateFingerTable(self, request, context):
-        self.chord_node.update_finger_table(chordNode.ChordNode(request.ip, request.port, self.chord_node.m), request.node_leave_id, request.index)
+        self.chord_node.update_finger_table(request.node_leave_id, request.ip, request.port)
         return pb2.Empty()
 
 

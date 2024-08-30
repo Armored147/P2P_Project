@@ -1,3 +1,4 @@
+from os import system
 import sys
 import threading
 import time
@@ -27,6 +28,7 @@ def run_node(ip, port, known_ip=None, known_port=None):
     # Menu loop
     while True:
         print("\nMenu:")
+        print("0. Clean console")
         print("1. Print Finger Table")
         print("2. Predecessor")
         print("3. Successor")
@@ -46,6 +48,8 @@ def run_node(ip, port, known_ip=None, known_port=None):
             node.leave_network()
             node.stop_server()
             break
+        elif choice == '0':
+            system('cls')
         else:
             print("Invalid choice. Please try again.")
 
