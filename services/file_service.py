@@ -8,14 +8,17 @@ import time
 class FileService(pb2_grpc.FileServiceServicer):
     def __init__(self, chord_node):
         self.chord_node = chord_node
-    
-    def UploadFile(self, request, context):
-        # Implementación DUMMY
-        return pb2.FileResponse(message=f"Received file: {request.filename}")
+
     
     def DownloadFile(self, request, context):
-        # Implementación DUMMY
-        return pb2.FileResponse(message=f"Sending file: {request.filename}")
+        filename = request.filename
+        if str(filename) in self.chord_node.file_list:  # Comparar como cadena
+            return pb2.FileResponse(message=f"{filename}")  # Mensaje de éxito
+        else:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(f'Archivo {filename} no encontrado en el nodo {self.chord_node.id}')
+            return pb2.FileResponse(message="")  # Mensaje de archivo no encontrado
+
 
     def FindSuccessor(self, request, context):
         successor = self.chord_node.find_successor(request.id)

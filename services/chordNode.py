@@ -17,6 +17,7 @@ class ChordNode:
         self.m = m
         self.id = self.hash_ip_port(ip, port)
         self.finger_table = []
+        self.file_list = []  # Lista para almacenar archivos
         
         for i in range(m):
             entry = {
@@ -226,3 +227,80 @@ class ChordNode:
             stub = health_pb2_grpc.HealthStub(channel)
             response = stub.Check(health_pb2.HealthCheckRequest(service=''))
             print(response.status) 
+    
+
+    ##------------------------------------------------------------------------------
+    def upload_file(self, filename):
+        self.file_list.append(str(filename))  # Asegúrate de que el ID del archivo se maneja como una cadena
+        print(f"Archivo '{filename}' subido exitosamente al nodo {self.id}.")
+
+
+
+    def show_files(self):
+        if self.file_list:
+            print(f"\nArchivos almacenados en el nodo {self.id}:")
+            for i, file in enumerate(self.file_list, start=1):
+                print(f"{i}. {file}")
+        else:
+            print(f"\nNo hay archivos almacenados en el nodo {self.id}.")
+
+
+    def download_file(self, file_id):
+        Nfile_id = file_id % (2 ** self.m)  # Aplica el módulo para manejar IDs mayores que 31
+        successor = self.find_successor(Nfile_id)
+        
+        if successor.id == self.id:
+            print(f"El archivo {file_id} debería estar en este nodo (ID: {self.id}).")
+            if str(file_id) in self.file_list:  # Verifica como cadena
+                print(f"Descarga exitosa del archivo {file_id} desde el peer {self.id}.")
+            else:
+                print(f"Archivo {file_id} no encontrado en este nodo (ID: {self.id}). Asegúrate de que el archivo esté subido correctamente.")
+        else:
+            # Conexión y solicitud a través de gRPC
+            print(f"Intentando conectar al sucesor en {successor.ip}:{successor.port}")
+            with grpc.insecure_channel(f'{successor.ip}:{successor.port}') as channel:
+                stub = pb2_grpc.FileServiceStub(channel)
+                try:
+                    response = stub.DownloadFile(pb2.FileRequest(filename=str(file_id)))
+                    if response.message:
+                        print(f"Descarga exitosa del archivo {response.message} desde el peer {successor.id}.")
+                    else:
+                        print(f"El nodo {successor.id} no devolvió un mensaje de éxito para el archivo {file_id}.")
+                except grpc.RpcError as e:
+                    print(f"Error al descargar el archivo {file_id} desde el nodo {successor.id}. Detalles: {e.details()}")
+
+    
+    def search_file(self, file_id):
+        Nfile_id = file_id % (2 ** self.m)  # Aplica el módulo para manejar IDs mayores que 31
+        successor = self.find_successor(Nfile_id)
+        
+        if successor.id == self.id:
+            print(f"El archivo {file_id} debería estar en este nodo (ID: {self.id}).")
+            if str(file_id) in self.file_list:  # Verifica como cadena
+                print(f"El archivo {file_id} está en el nodo {self.id} con IP {self.ip} y puerto {self.port}.")
+            else:
+                print(f"Archivo {file_id} no encontrado en este nodo (ID: {self.id}).")
+        else:
+            # Conexión y solicitud a través de gRPC
+            print(f"Intentando conectar al sucesor en {successor.ip}:{successor.port} para buscar el archivo {file_id}")
+            with grpc.insecure_channel(f'{successor.ip}:{successor.port}') as channel:
+                stub = pb2_grpc.FileServiceStub(channel)
+                try:
+                    response = stub.DownloadFile(pb2.FileRequest(filename=str(file_id)))
+                    if response.message:
+                        print(f"El archivo {response.message} está en el nodo {successor.id} con IP {successor.ip} y puerto {successor.port}.")
+                    else:
+                        print(f"Archivo {file_id} no encontrado en la red.")
+                except grpc.RpcError as e:
+                    print(f"Error al buscar el archivo {file_id} en el nodo {successor.id}. Detalles: {e.details()}")
+    
+
+
+
+
+
+
+
+
+
+

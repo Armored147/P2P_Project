@@ -34,6 +34,10 @@ def run_node(ip, port, known_ip=None, known_port=None):
         print("3. Successor")
         print("4. Check Health")
         print("5. Exit")
+        print("6. Mostrar archivos")
+        print("7. Subir archivo")
+        print("8. Descargar archivo")
+        print("9. Buscar archivo")
         choice = input("Enter your choice: ")
         if choice == '1':
             node.print_finger_table2()
@@ -50,8 +54,20 @@ def run_node(ip, port, known_ip=None, known_port=None):
             break
         elif choice == '0':
             system('cls')
+        elif choice == '6':
+            node.show_files()
+        elif choice == '7':
+            filename = input("Ingrese el nombre del archivo para subir: ")
+            node.upload_file(filename)
+        elif choice == '8':
+            file_id = int(input("Ingrese el ID del archivo a descargar: "))
+            node.download_file(file_id)  
+        elif choice == '9':  # Implementa la búsqueda de archivo
+            file_id = int(input("Ingrese el ID del archivo a buscar: "))
+            node.search_file(file_id)
         else:
             print("Invalid choice. Please try again.")
+        
 
 if __name__ == "__main__":
     ip = sys.argv[1]
