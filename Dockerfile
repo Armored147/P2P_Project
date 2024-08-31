@@ -6,9 +6,6 @@ WORKDIR /P2P_Project
 
 COPY requirements.txt /P2P_Project/
 
-# Define un argumento para decidir qué ejecutar
-ARG NODE_MODE=app1
-ENV NODE_MODE=$NODE_MODE
 
 RUN pip install -r requirements.txt
 
@@ -25,9 +22,11 @@ EXPOSE 7000
 EXPOSE 8000
 EXPOSE 9000
 
+CMD ["python", "./run_node.py", "44.223.125.103", "7000"]
+
 # CMD condicional usando variables de entorno
-CMD if [ "$APP_MODE" = "master" ]; then \
-        ./scripts/master.sh; \
-    else \
-        ./scripts/master.sh; \
-    fi
+#CMD if [ "$NODE_MODE" = "master" ]; then \
+ #       ./scripts/master.sh; \
+  #  else \
+   #     ./scripts/master.sh; \
+    #fi
