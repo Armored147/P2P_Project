@@ -12,4 +12,4 @@ port_seed=$(cat $CONFIG_FILE | grep 'port_seed:' | awk '{print $2}')
 
 echo "IP: $ip_seed"
 
-exec python ./run_node.py "$ip" "$port" "$ip_seed" "$port_seed"
+exec python ./run_node_api.py "$ip" "$port" "$ip_seed" "$port_seed"
