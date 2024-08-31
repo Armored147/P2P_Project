@@ -74,7 +74,7 @@ if __name__ == "__main__":
     port = int(sys.argv[2])
     
     if len(sys.argv) == 5:
-        known_ip = str(sys.argv[3])
+        known_ip = sys.argv[3]
         known_port = int(sys.argv[4])
         run_node(ip, port, known_ip, known_port)
     else:
