@@ -14,6 +14,11 @@ RUN pip install -r requirements.txt
 
 COPY . /P2P_Project/
 
+# Otorga permisos de ejecución al archivo Bash
+RUN chmod +x ./scripts/master.sh
+
+RUN chmod +x ./scripts/slave.sh
+
 EXPOSE 5000
 EXPOSE 6000
 EXPOSE 7000
