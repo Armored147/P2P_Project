@@ -1,3 +1,3 @@
-ip: "44.223.125.103"
+ip: 44.223.125.103
 port: 7000
 directory: "./shared_files"
