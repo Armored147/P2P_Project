@@ -10,6 +10,6 @@ port_seed=$(cat $CONFIG_FILE | grep 'port_seed:' | awk '{print $2}')
 
 # Ejecutar el script Python con los valores de la configuración
 
-echo "IP: $ip"
+echo "IP: $ip_seed"
 
 exec python ./run_node.py "$ip" "$port" "$ip_seed" "$port_seed"
