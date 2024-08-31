@@ -4,7 +4,7 @@
 CONFIG_FILE="./config/peerMaster_config.yaml"
 
 ip=$(cat $CONFIG_FILE | grep 'ip:' | awk '{print $2}')
-port=$(cat $CONFIG_FILE | grep 'port:' | awk -F'"' '{print $2}')
+port=$(cat $CONFIG_FILE | grep 'port:' | awk '{print $2}')
 
 # Ejecutar el script Python con los valores de la configuración
 exec python ./run_node.py "$ip" "$port" 
