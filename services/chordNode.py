@@ -19,6 +19,8 @@ class ChordNode:
         self.finger_table = []
         self.file_list = []  # Lista para almacenar archivos
         
+        print(f"Node created with ID {self.id} and address {self.ip}:{self.port}")
+        
         for i in range(m):
             entry = {
                 'start': (self.id + 2**i) % 2**m,  # Cálculo de la posición
