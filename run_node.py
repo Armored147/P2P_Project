@@ -73,8 +73,6 @@ if __name__ == "__main__":
     ip = str(sys.argv[1])
     port = int(sys.argv[2])
     
-    #print(type(ip), type(port))
-
     if len(sys.argv) == 5:
         known_ip = sys.argv[3]
         known_port = int(sys.argv[4])
