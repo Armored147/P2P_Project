@@ -28,16 +28,16 @@ def run_node(ip, port, known_ip=None, known_port=None):
     # Menu loop
     while True:
         print("\nMenu:")
-        print("0. Clean console")
+        print("Clean console")
         print("1. Print Finger Table")
         print("2. Predecessor")
         print("3. Successor")
         print("4. Check Health")
-        print("5. Exit")
         print("6. Mostrar archivos")
         print("7. Subir archivo")
         print("8. Descargar archivo")
         print("9. Buscar archivo")
+        print("0. Exit")
         choice = input("Enter your choice: ")
         if choice == '1':
             node.print_finger_table2()
@@ -47,13 +47,13 @@ def run_node(ip, port, known_ip=None, known_port=None):
             node.print_successor()
         elif choice == '4':
             node.health_check()
-        elif choice == '5':
+        elif choice == '0':
             print("Exiting...")
             node.leave_network()
             node.stop_server()
             break
-        elif choice == '0':
-            system('cls')
+        elif choice == 'cl':
+            system('clear')
         elif choice == '6':
             node.show_files()
         elif choice == '7':

@@ -1,4 +1,0 @@
-ip: "127.0.0.1"
-port: "50051"
-directory: "/path/to/shared/files"
-peer_seed_url: "127.0.0.1:50052"

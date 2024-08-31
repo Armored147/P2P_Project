@@ -1,0 +1,5 @@
+ip: ""
+port: ""
+directory: "./shared_files"
+ip_seed: "44.223.125.103"
+port_seed: "7000"
