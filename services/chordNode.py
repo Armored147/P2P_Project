@@ -105,6 +105,7 @@ class ChordNode:
             print(f"No successor found for Node {self.id}. Retrying stabilization.")
 
     def notify(self, node):
+        print(f"notify called by Node {node.id} on Node {self.id}")
         if not self.predecessor or (
             (self.predecessor.id <= self.id and self.predecessor.id < node.id < self.id) or 
             (self.predecessor.id >= self.id and (node.id > self.predecessor.id or node.id < self.id))
