@@ -91,9 +91,7 @@ class ChordNode:
                 with grpc.insecure_channel(f'{self.successor.ip}:{self.successor.port}') as channel:
                     stub = pb2_grpc.FileServiceStub(channel)
                     response = stub.GetPredecessor(pb2.Empty())
-                    print(f"X: {response.id}")
                     if response.id:
-                        print(f"X: {response.id}")
                         x = ChordNode(response.ip, response.port, m=self.m)
                         if ((self.id < x.id < self.successor.id) or
                             (self.id >= self.successor.id and (x.id > self.id or x.id < self.successor.id))):
@@ -168,7 +166,7 @@ class ChordNode:
 
     def start_server(self):
         global server
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=100))
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         pb2_grpc.add_FileServiceServicer_to_server(FileService(self), server)
         
         health_servicer = health.HealthServicer()
