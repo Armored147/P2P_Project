@@ -89,6 +89,11 @@ def search_file():
         return jsonify({"message": response}), 200
     return jsonify({"error": "Node not initialized"}), 400
 
+@app.route('/repair', methods=['GET'])
+def repair():
+    node.stabilize()
+    node.fix_fingers()
+    return jsonify({"message": "Server repairing..."}), 200
 
 @app.route('/shutdown', methods=['GET'])
 def shutdown():
