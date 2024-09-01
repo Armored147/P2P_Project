@@ -150,6 +150,7 @@ class ChordNode:
                         stub.UpdateFingerTable(pb2.fingerTable(node_leave_id=node_leave_id, ip=successor_ip, port=successor_port))
                     except grpc.RpcError as e:
                         print(f"Failed to update finger table: {e}")
+            print("Processed finger table update")
         except Exception as e:
             print(f"Error updating finger table: {e}")
 
