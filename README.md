@@ -60,26 +60,93 @@ El proyecto se cimenta sobre una red peer-to-peer (P2P) estructurada basada en e
 ### 3. Descripción del ambiente de desarrollo y técnico: lenguaje de programación, librerías, paquetes, etc., con sus números de versiones.
 
 #### 3.1. Cómo se compila y ejecuta
+El proyecto cuenta con dos maneras de ejecutarse, tanto una API haciendo uso de Flask, como una ejecución por consola, en este caso se describirá la ejecución por consola de manera local.
 Para compilar y ejecutar el proyecto se requiere instalar las siguientes dependencias haciendo uso de sus respectivos comandos:
 
 - **gRPC:**
   ```bash
   pip install grpcio grpcio-tools
+  ```
 - **Protobuf:**
   ```bash
   pip install protobuf
-
+  ```
 - **Tabulate:**
   ```bash
   pip install tabulate
-
+  ```
 - **gRPC Health Checking:**
   ```bash
   pip install grpcio-health-checking
-
+  ```
 Para iniciar se debe compilar el archivo proto con el comando:
 ```bash
 python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. proto/fileservice.proto
+```
+Habiendo instalado las dependencias necesarias y compilado el archivo proto, podemos proceder a ejecutar el programa. Para iniciar un red lo haremos con el formato <IP> <Puerto> en este caso de manera local sería:
+```bash
+python run_node.py 127.0.0.1 7000
+```
+Para unir un peer a una red ya creada se realiza con el fomato `python run_node.py` <IP peer semilla> <Puerto peer semilla> <IP nuevo peer> <Puerto nuevo peer> ejemplo:
+```bash
+python run_node.py 127.0.0.1 9000  127.0.0.1 7000
+```
+Teniendo la red inicializada, podemos ir uniendo los diferentes peers a la red para notar su funcionamiento.
+#### 3.2. detalles del desarrollo
+
+Usamos solo gRPC para implementar el proyecto P2P porque nos proporciona una comunicación directa y eficiente entre nodos mediante RPC, lo cual es perfecto para las operaciones del algoritmo Chord, como la creación y mantenimiento de la finger table. No utilizamos API REST porque no lo planteamos de esa manera desde el inicio del proyecto. MOM fue descartado porque añade una complejidad innecesaria y no es requerido para las operaciones específicas de Chord, que se basan en mensajes directos y eficientes.
+#### 3.3. detalles técnicos
+* Lenguaje de programación:
+  `Python 3.11.5`
+  Extensiones:
+* Protobuf
+  `Protobuf 5.27.3`
+* grpcio-tools 
+  `grpcio-tools 1.65.5`
+* tabulate 
+  `tabulate 0.8.10`
+* grpcio-health-checking 
+  `grpcio-health-checking 1.66.1`
+
+### 3.3. descripción y como se configura los parámetros del proyecto
+El proyecto como se indicio anteriormente, cuenta con una estructura de <IP> <Puerto> para un peer inicial (inicialización de la red) e <IP peer semilla> <Puerto peer semilla> <IP nuevo peer> <Puerto nuevo peer>.
+Para replicar el funcionamiento de un ambiente de desarollo para 4 peers con ID's 1, 5, 20 y 28, se recomienda la siguiente implementación:
+* Nodo 20= `127.0.0.1 7000`
+* Nodo 28= `127.0.0.1 8000 127.0.0.1 7000`
+* Nodo 5= `127.0.0.1 9000 127.0.0.1 7000`
+* Nodo 1= `127.0.0.1 6000 127.0.0.1 7000`
+Todas estas configuraciones se realizan a la hora de ejecutar el programa, demás modificaciones internas dentro del mismo código no son necesarias.
+
+### 3.4. Estructura de directorios y archivos.
+```bash
+P2P_PROJECT
+├── __pycache__
+├── .vscode
+├── config
+├── proto
+│   └── fileservice.proto
+├── services
+│   ├── __pycache__
+│   ├── __init__.py
+│   ├── chordNode.py
+│   ├── file_service.py
+│   ├── fileservice_pb2_grpc.py
+│   ├── fileservice_pb2.py
+├── cliente.py
+├── README.md
+├── run_node.py
+└── server.py
+```
+### 3.5. Imagenes resultados
+Funcionamiento al conectar un peer.
+![image](https://github.com/user-attachments/assets/aaff90bc-2a98-41da-b7b8-ed9b9ed55fd0)
+Funcionamiento al conectar un peer a una red ya establecida.
+![image](https://github.com/user-attachments/assets/0bd6b002-0008-4dd6-8448-e25c5a46604e)
+
+
+
+
+
 
 
 
