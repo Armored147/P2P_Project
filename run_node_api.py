@@ -93,6 +93,7 @@ def search_file():
 @app.route('/shutdown', methods=['GET'])
 def shutdown():
     shutdown_server()
+    return jsonify({"message": "Server shutdown..."}), 200
     
 def shutdown_server():
     node.leave_network()
