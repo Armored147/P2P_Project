@@ -92,19 +92,8 @@ def search_file():
 
 @app.route('/shutdown', methods=['GET'])
 def shutdown():
-    data = {"message": "Server is shutting down..."}
+    shutdown_server()
     
-    # Crear y enviar la respuesta manualmente
-    response = Response(response=jsonify(data).get_data(), status=200, mimetype="application/json")
-    response.headers["Content-Type"] = "application/json"
-    
-    # Enviar la respuesta al cliente antes de apagar el servidor
-    response.direct_passthrough = False
-    response.make_conditional(request)
-    response.call_on_close(lambda: shutdown_server())
-    
-    return response
-
 def shutdown_server():
     node.leave_network()
     node.stop_server()
