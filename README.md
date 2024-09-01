@@ -65,6 +65,17 @@ Para compilar y ejecutar el proyecto se requiere instalar las siguientes depende
 - **gRPC:**
   ```bash
   pip install grpcio grpcio-tools
+- **Protobuf:**
+  ```bash
+  pip install protobuf
+
+- **Tabulate:**
+  ```bash
+  pip install tabulate
+
+- **gRPC Health Checking:**
+  ```bash
+  pip install grpcio-health-checking
 
 
 
