@@ -182,7 +182,7 @@ class ChordNode:
             self.stabilize()
             self.fix_fingers()
             print("Server running at", f"{self.ip}:{self.port}")
-            time.sleep(5)
+            time.sleep(10)
 
             
     def stop_server(self):
