@@ -77,6 +77,10 @@ Para compilar y ejecutar el proyecto se requiere instalar las siguientes depende
   ```bash
   pip install grpcio-health-checking
 
+Para iniciar se debe compilar el archivo proto con el comando:
+```bash
+python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. proto/fileservice.proto
+
 
 
 
