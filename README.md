@@ -7,7 +7,7 @@
 ## Profesor
 - **Álvaro Enrique Ospina Sanjuan**, [aeospinas@eafit.edu.co](mailto:aeospinas@eafit.edu.co)
 
-### Reto No 1
+# Reto No 1
 
 ## 1. Breve descripción de la actividad
 La actividad consiste en diseñar e implementar un sistema P2P (peer-to-peer) que permita la compartición de archivos de manera distribuida y descentralizada. Este sistema debe estar basado en una red P2P estructurada (como Chord/DHT) o no estructurada (con superpeer o pura). Cada nodo o peer en la red actuará como servidor y cliente al mismo tiempo, conteniendo microservicios que manejarán el mantenimiento de la red, la localización de recursos y servicios dummy para la transferencia de archivos.
