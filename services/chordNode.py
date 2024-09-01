@@ -177,14 +177,12 @@ class ChordNode:
         
         server.add_insecure_port(f"{self.ip}:{self.port}")
         server.start()
-        try:
-            while True:
-                self.stabilize()
-                self.fix_fingers()
-                print("Server running at", f"{self.ip}:{self.port}")
-                time.sleep(5)
-        except KeyboardInterrupt:
-            server.stop(0)
+        while True:
+            self.stabilize()
+            self.fix_fingers()
+            print("Server running at", f"{self.ip}:{self.port}")
+            time.sleep(5)
+
             
     def stop_server(self):
         global server
