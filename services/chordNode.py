@@ -46,10 +46,13 @@ class ChordNode:
             if closest_node == self:
                 return self.successor
             else:
-                with grpc.insecure_channel(f'{closest_node.ip}:{closest_node.port}') as channel:
-                    stub = pb2_grpc.FileServiceStub(channel)
-                    response = stub.FindSuccessor(pb2.FindSuccessorRequest(id=id))
-                    return ChordNode(response.ip, response.port, m=self.m)
+                try: 
+                    with grpc.insecure_channel(f'{closest_node.ip}:{closest_node.port}') as channel:
+                        stub = pb2_grpc.FileServiceStub(channel)
+                        response = stub.FindSuccessor(pb2.FindSuccessorRequest(id=id))
+                        return ChordNode(response.ip, response.port, m=self.m)
+                except grpc.RpcError as e:
+                    print(f"find_successor failed with error: {e}")
 
     def closest_preceding_node(self, id):
         for i in range(self.m - 1, -1, -1):
