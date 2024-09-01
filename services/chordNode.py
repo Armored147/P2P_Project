@@ -2,6 +2,7 @@ import grpc
 import hashlib
 from concurrent import futures
 import time
+import json
 from tabulate import tabulate
 from services import fileservice_pb2_grpc as pb2_grpc
 from . import fileservice_pb2 as pb2
@@ -189,16 +190,24 @@ class ChordNode:
 #--------------------------------------------------------------
 
     def print_predecessor(self):
+        response = ""
         if self.predecessor:
-            print(f"\nPredecessor for node {self.id}: Node ID {self.predecessor.id}, Address: {self.predecessor.ip}:{self.predecessor.port}")
+            response = f"\nPredecessor for node {self.id}: Node ID {self.predecessor.id}, Address: {self.predecessor.ip}:{self.predecessor.port}"
+            print(response)
         else:
-            print(f"\nPredecessor for node {self.id}: None")
+            response = f"\nPredecessor for node {self.id}: None"
+            print(response)
+        return response
     
     def print_successor(self):
+        response = ""
         if self.successor:
-            print(f"\nSuccessor for node {self.id}: Node ID {self.successor.id}, Address: {self.successor.ip}:{self.successor.port}")
+            response = f"\nSuccessor for node {self.id}: Node ID {self.successor.id}, Address: {self.successor.ip}:{self.successor.port}"
+            print(response)
         else:
-            print(f"\nSuccessor for node {self.id}: None")
+            response = f"\nSuccessor for node {self.id}: None"
+            print(response)
+        return response
             
     def print_finger_table(self):
         print(f"Finger table for node {self.id}:")
@@ -211,7 +220,20 @@ class ChordNode:
     def print_finger_table2(self):
         print(f"\nFinger table for node {self.id}:")
         print(tabulate([[entry['start'], entry['interval'], entry['successor'].id if entry['successor'] else None] for entry in self.finger_table], headers=['Start', 'Interval', 'Successor']))
-
+        return self.finger_table
+    
+    def get_finger_table(self):
+        finger_table_list = []
+        for entry in self.finger_table:
+            finger_table_list.append({
+                "start": entry['start'],
+                "interval": entry['interval'],  # Convert tuple to string
+                "successor": entry['successor'].id if entry['successor'] else None
+            })
+        return {
+            "node_id": self.id,
+            "finger_table": finger_table_list
+        }
 
     def update_successor(self, index, successor):
         self.finger_table[index]['successor'] = successor
@@ -231,68 +253,86 @@ class ChordNode:
 
     ##------------------------------------------------------------------------------
     def upload_file(self, filename):
+        response = ""
         self.file_list.append(str(filename))  # Asegúrate de que el ID del archivo se maneja como una cadena
-        print(f"Archivo '{filename}' subido exitosamente al nodo {self.id}.")
-
-
+        response = f"Archivo '{filename}' subido exitosamente al nodo {self.id}."
+        print(response)
+        return response, self.file_list
 
     def show_files(self):
+        reponse = ""
         if self.file_list:
-            print(f"\nArchivos almacenados en el nodo {self.id}:")
+            reponse = f"\nArchivos almacenados en el nodo {self.id}:"
+            print(reponse)
             for i, file in enumerate(self.file_list, start=1):
                 print(f"{i}. {file}")
         else:
-            print(f"\nNo hay archivos almacenados en el nodo {self.id}.")
+            reponse = f"\nNo hay archivos almacenados en el nodo {self.id}."
+            print(reponse)
+        
+        return reponse, self.file_list
 
 
     def download_file(self, file_id):
+        response = ""
         Nfile_id = file_id % (2 ** self.m)  # Aplica el módulo para manejar IDs mayores que 31
         successor = self.find_successor(Nfile_id)
         
         if successor.id == self.id:
             print(f"El archivo {file_id} debería estar en este nodo (ID: {self.id}).")
             if str(file_id) in self.file_list:  # Verifica como cadena
-                print(f"Descarga exitosa del archivo {file_id} desde el peer {self.id}.")
+                response = f"Descarga exitosa del archivo {file_id} desde el peer {self.id}."
+                print(response)
             else:
-                print(f"Archivo {file_id} no encontrado en este nodo (ID: {self.id}). Asegúrate de que el archivo esté subido correctamente.")
+                response = f"Archivo {file_id} no encontrado en este nodo (ID: {self.id}). Asegúrate de que el archivo esté subido correctamente."
+                print(response)
         else:
             # Conexión y solicitud a través de gRPC
             print(f"Intentando conectar al sucesor en {successor.ip}:{successor.port}")
             with grpc.insecure_channel(f'{successor.ip}:{successor.port}') as channel:
                 stub = pb2_grpc.FileServiceStub(channel)
                 try:
-                    response = stub.DownloadFile(pb2.FileRequest(filename=str(file_id)))
-                    if response.message:
-                        print(f"Descarga exitosa del archivo {response.message} desde el peer {successor.id}.")
+                    response_grpc = stub.DownloadFile(pb2.FileRequest(filename=str(file_id)))
+                    if response_grpc.message:
+                        response = f"Descarga exitosa del archivo {response_grpc.message} desde el peer {successor.id}."
+                        print(response)
                     else:
-                        print(f"El nodo {successor.id} no devolvió un mensaje de éxito para el archivo {file_id}.")
+                        response = f"El nodo {successor.id} no devolvió un mensaje de éxito para el archivo {file_id}."
+                        print(response)
                 except grpc.RpcError as e:
                     print(f"Error al descargar el archivo {file_id} desde el nodo {successor.id}. Detalles: {e.details()}")
+        return response
 
     
     def search_file(self, file_id):
+        response = ""
         Nfile_id = file_id % (2 ** self.m)  # Aplica el módulo para manejar IDs mayores que 31
         successor = self.find_successor(Nfile_id)
         
         if successor.id == self.id:
-            print(f"El archivo {file_id} debería estar en este nodo (ID: {self.id}).")
             if str(file_id) in self.file_list:  # Verifica como cadena
-                print(f"El archivo {file_id} está en el nodo {self.id} con IP {self.ip} y puerto {self.port}.")
+                response = f"El archivo {file_id} está en el nodo {self.id} con IP {self.ip} y puerto {self.port}."
+                print(response)
             else:
-                print(f"Archivo {file_id} no encontrado en este nodo (ID: {self.id}).")
+                response = f"Archivo {file_id} no encontrado en este nodo (ID: {self.id})."
+                print(response)
         else:
             # Conexión y solicitud a través de gRPC
             print(f"Intentando conectar al sucesor en {successor.ip}:{successor.port} para buscar el archivo {file_id}")
             with grpc.insecure_channel(f'{successor.ip}:{successor.port}') as channel:
                 stub = pb2_grpc.FileServiceStub(channel)
                 try:
-                    response = stub.DownloadFile(pb2.FileRequest(filename=str(file_id)))
-                    if response.message:
-                        print(f"El archivo {response.message} está en el nodo {successor.id} con IP {successor.ip} y puerto {successor.port}.")
+                    response_grpc = stub.DownloadFile(pb2.FileRequest(filename=str(file_id)))
+                    if response_grpc.message:
+                        response = f"El archivo {response_grpc.message} está en el nodo {successor.id} con IP {successor.ip} y puerto {successor.port}."
+                        print(response)
                     else:
-                        print(f"Archivo {file_id} no encontrado en la red.")
+                        response = f"Archivo {file_id} no encontrado en la red."
+                        print(response)
                 except grpc.RpcError as e:
                     print(f"Error al buscar el archivo {file_id} en el nodo {successor.id}. Detalles: {e.details()}")
+        
+        return response
     
 
 

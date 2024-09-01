@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response, current_app
 from services.chordNode import ChordNode
 import threading
 import time
 import sys
+import os
+import signal
 
 app = Flask(__name__)
 node = None
@@ -29,9 +31,85 @@ def initialize_node(ip, port, known_ip=None, known_port=None):
 def print_finger_table():
     if node:
         node.print_finger_table2()
-        return jsonify({"message": "Finger table printed"}), 200
+        finger_table = node.get_finger_table()
+        return jsonify({"finger_table": finger_table, "message": "Finger table printed",}), 200
     return jsonify({"error": "Node not initialized"}), 400
 
+@app.route('/get_predecessor', methods=['GET'])
+def get_predecessor():
+    if node:
+        predecessor = node.print_predecessor()
+        return jsonify({"predecessor": predecessor}), 200
+    return jsonify({"error": "Node not initialized"}), 400
+
+@app.route('/get_successor', methods=['GET'])
+def get_successor():
+    if node:
+        successor = node.print_successor()
+        return jsonify({"successor": successor}), 200
+    return jsonify({"error": "Node not initialized"}), 400
+
+@app.route('/show_files', methods=['GET'])
+def show_files():
+    if node:
+        response, files = node.show_files()
+        return jsonify({"message": response, "list of files":files}), 200
+    return jsonify({"error": "Node not initialized"}), 400
+
+@app.route('/upload_file', methods=['POST'])
+def upload_file():
+    if node:
+        data = request.get_json()
+        filename = data.get("filename")
+        if not filename:
+            return jsonify({"error": "Filename not provided"}), 400
+        response, files = node.upload_file(filename)
+        return jsonify({"message": response, "list of files":files}), 200
+    return jsonify({"error": "Node not initialized"}), 400
+
+@app.route('/download_file', methods=['POST'])
+def download_file():
+    if node:
+        data = request.get_json()
+        filename = data.get("filename")
+        if not filename:
+            return jsonify({"error": "Filename not provided"}), 400
+        response = node.download_file(filename)
+        return jsonify({"message": response}), 200
+    return jsonify({"error": "Node not initialized"}), 400
+
+@app.route('/search_file', methods=['POST'])
+def search_file():
+    if node:
+        data = request.get_json()
+        filename = data.get("filename")
+        if not filename:
+            return jsonify({"error": "Filename not provided"}), 400
+        response = node.search_file(filename)
+        return jsonify({"message": response}), 200
+    return jsonify({"error": "Node not initialized"}), 400
+
+
+@app.route('/shutdown', methods=['GET'])
+def shutdown():
+    data = {"message": "Server is shutting down..."}
+    
+    # Crear y enviar la respuesta manualmente
+    response = Response(response=jsonify(data).get_data(), status=200, mimetype="application/json")
+    response.headers["Content-Type"] = "application/json"
+    
+    # Enviar la respuesta al cliente antes de apagar el servidor
+    response.direct_passthrough = False
+    response.make_conditional(request)
+    response.call_on_close(lambda: shutdown_server())
+    
+    return response
+
+def shutdown_server():
+    node.leave_network()
+    node.stop_server()
+    pid = os.getpid()  # Obtener el PID del proceso actual
+    os.kill(pid, signal.SIGINT)  # Enviar la señal SIGINT al proceso
 
 # Aceptar parámetros desde la línea de comandos
 if __name__ == "__main__":
