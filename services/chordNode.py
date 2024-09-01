@@ -113,6 +113,7 @@ class ChordNode:
  
     def fix_fingers(self):
         for i in range(self.m):
+            print(f"Fixing finger {i}")
             start = (self.id + 2 ** i) % (2 ** self.m)
             successor = self.find_successor(start)
             self.finger_table[i]['start'] = start
