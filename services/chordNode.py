@@ -166,7 +166,7 @@ class ChordNode:
 
     def start_server(self):
         global server
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1000))
         pb2_grpc.add_FileServiceServicer_to_server(FileService(self), server)
         
         health_servicer = health.HealthServicer()
