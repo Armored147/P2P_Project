@@ -91,7 +91,9 @@ class ChordNode:
                 with grpc.insecure_channel(f'{self.successor.ip}:{self.successor.port}') as channel:
                     stub = pb2_grpc.FileServiceStub(channel)
                     response = stub.GetPredecessor(pb2.Empty())
+                    print(f"X: {response.id}")
                     if response.id:
+                        print(f"X: {response.id}")
                         x = ChordNode(response.ip, response.port, m=self.m)
                         if ((self.id < x.id < self.successor.id) or
                             (self.id >= self.successor.id and (x.id > self.id or x.id < self.successor.id))):
@@ -113,7 +115,6 @@ class ChordNode:
  
     def fix_fingers(self):
         for i in range(self.m):
-            print(f"Fixing finger {i}")
             start = (self.id + 2 ** i) % (2 ** self.m)
             successor = self.find_successor(start)
             self.finger_table[i]['start'] = start
