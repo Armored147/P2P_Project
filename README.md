@@ -139,8 +139,11 @@ P2P_PROJECT
 ```
 ### 3.5. Imagenes resultados
 Funcionamiento al conectar un peer.
+
 ![image](https://github.com/user-attachments/assets/aaff90bc-2a98-41da-b7b8-ed9b9ed55fd0)
+
 Funcionamiento al conectar un peer a una red ya establecida.
+
 ![image](https://github.com/user-attachments/assets/0bd6b002-0008-4dd6-8448-e25c5a46604e)
 
 
