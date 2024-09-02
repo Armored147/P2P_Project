@@ -149,7 +149,7 @@ Funcionamiento al conectar un peer a una red ya establecida.
 
 ### 4. Descripción del ambiente de EJECUCIÓN (en producción) lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
 
-#### 4.1. IP's de las instancias EC2 de AWS.
+### 4.1. IP's de las instancias EC2 de AWS.
 
 Se desplegaron cuatro instancias o máquinas virtuales en AWS, cada una con una IP elástica para optimizar la eficiencia en el despliegue del proyecto. Además, para simplificar la configuración, todos los nodos utilizan el puerto `7000`. A continuación, se detallan las IPs de cada instancia.
 
@@ -160,7 +160,7 @@ Se desplegaron cuatro instancias o máquinas virtuales en AWS, cada una con una 
 
 Cabe aclarar que no hay orden en que los nodos deban unirse, simplemente es para una mayor claridad y seguimiento de las maquinas virtuales.
 
-#### 4.2. Configuracion del proyecto en las instancias EC2 de AWS.
+### 4.2. Configuracion del proyecto en las instancias EC2 de AWS.
 
 Para deplegar el proyecto en el ambiente de AWS, se deben de seguir los pasos descritos a continuacion.
 
@@ -199,7 +199,7 @@ docker build -t test-aws .
 
 Asi el proyecto queda completamente configurado en la maquina virtual, y solo quedaria levantar el contener.
 
-#### 4.3. Ejecutar el proyecto
+### 4.3. Ejecutar el proyecto
 Para ejecutar el proyecto, simplemente es necesario lanzar el siguiente comando, según corresponda al caso.
 
 Para el master
@@ -212,21 +212,35 @@ Para los nodos
 docker run -it --network=nombre-de-red --ip=44.223.125.103 -p 5000:5000 -p 7000:7000 --name nodex test-aws:latest
 ```
 
-#### 4.3. Guia de usuario
+### 4.4. Guia de usuario
 Para que el usuario pueda utilizar el proyecto, primero debe cumplir con los requisitos mencionados anteriormente. Una vez cumplidos, el usuario interactuará con la red a través del programa Postman de la siguiente manera:
 
 <img width="960" alt="Postamn" src="https://github.com/user-attachments/assets/745316d1-d8fc-4a0a-b2e7-000eec288ef1">
 
 Se detalla los metodos que se pueden utilizar.
+
 **Metodos API**
-`/finger_table`
-`/get_predecessor`
-`/get_successor`
-`/show_files`
-`/upload_file`
-`/download_file`
-`/search_file`
-`/shutdown`
+- `/finger_table`
+- `/get_predecessor`
+- `/get_successor`
+- `/show_files`
+- `/upload_file`
+- `/download_file`
+- `/search_file`
+- `/shutdown`
+
+### 4.5. Resultados
+
+**Instancias EC2**
+![image](https://github.com/user-attachments/assets/e750a6cf-db64-4b97-a79d-97725eabfae5)
+![image](https://github.com/user-attachments/assets/27ae45d8-6b24-4f3f-adfe-688c493e2441)
+
+**Postman y API**
+![image](https://github.com/user-attachments/assets/c5da1eba-4f8f-4fb0-93b3-6308161b171c)
+![image](https://github.com/user-attachments/assets/23f9bd03-de17-4ad9-ae25-2b65629ce7d1)
+
+
+### Referencias
 
 
 
