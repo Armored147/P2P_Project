@@ -147,6 +147,90 @@ Funcionamiento al conectar un peer a una red ya establecida.
 ![image](https://github.com/user-attachments/assets/0bd6b002-0008-4dd6-8448-e25c5a46604e)
 
 
+### 4. Descripción del ambiente de EJECUCIÓN (en producción) lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
+
+#### 4.1. IP's de las instancias EC2 de AWS.
+
+Se desplegaron cuatro instancias o máquinas virtuales en AWS, cada una con una IP elástica para optimizar la eficiencia en el despliegue del proyecto. Además, para simplificar la configuración, todos los nodos utilizan el puerto `7000`. A continuación, se detallan las IPs de cada instancia.
+
+- **Master:** `IP : 44.223.125.103:7000`. Instancia encargada de iniciar la red P2P y ser el primer nodo. 
+- **Nodo-1:** `IP : 54.84.150.553:7000`. Nodo 1 despues del master.
+- **Nodo-2:** `IP : 44.198.105.213:7000`. Nodo 2 despues del master.
+- **Nodo-3:** `IP : 3.227.81.239:7000`. Nodo 3 despues del master.
+
+Cabe aclarar que no hay orden en que los nodos deban unirse, simplemente es para una mayor claridad y seguimiento de las maquinas virtuales.
+
+#### 4.2. Configuracion del proyecto en las instancias EC2 de AWS.
+
+Para deplegar el proyecto en el ambiente de AWS, se deben de seguir los pasos descritos a continuacion.
+
+**1. Instalacion de docker en la instacia y permisos de usuario.**
+   - [Se remite a la guia oficial de instalacion de docker](https://docs.docker.com/engine/install/ubuntu/)
+   - [Permisos de usuario para docker. Guia oficial](https://docs.docker.com/engine/install/linux-postinstall/)
+
+**2. Clonar el repositorio del proyecto** 
+```bash
+git clone https://github.com/Armored147/P2P_Project.git
+```
+y entrar 
+```bash
+cd P2P_Project
+```
+
+**3. Crear la red docker**
+Para el correcto funcionamiento del proyecto, se debe crear una red para el contenedor.
+```bash
+docker network create --driver=bridge --subnet=ip-publica-instancia/16 nombre-de-red
+```
+En la bandera subnet, se esta creando una subred para el contenedor por lo tanto la ip debe finalizar en `0.0`
+
+**4. Modificar el archvido de configuracion Yaml**
+Si el peer que se va a unir a las red no es el master, es necesario editar el archivo de configuracion.
+```bash
+nano ./config/peerSlave_config.yaml
+```
+En él, se debe de editar el campo `ip: 0.0.0.0` y escribir la ip publica de la instancia EC2.
+
+**5. Crear la imagen Docker**
+A continuacion se crea la imagen Docker a partir del dockerfile del proyecto.
+```bash
+docker build -t test-aws .
+```
+
+Asi el proyecto queda completamente configurado en la maquina virtual, y solo quedaria levantar el contener.
+
+#### 4.3. Ejecutar el proyecto
+Para ejecutar el proyecto, simplemente es necesario lanzar el siguiente comando, según corresponda al caso.
+
+Para el master
+```bash
+docker run -it --network=nombre-de-red --ip=44.223.125.103 -p 5000:5000 -p 7000:7000 -e NODE_MODE=master --name master test-aws:latest
+```
+
+Para los nodos
+```bash
+docker run -it --network=nombre-de-red --ip=44.223.125.103 -p 5000:5000 -p 7000:7000 --name nodex test-aws:latest
+```
+
+#### 4.3. Guia de usuario
+Para que el usuario pueda utilizar el proyecto, primero debe cumplir con los requisitos mencionados anteriormente. Una vez cumplidos, el usuario interactuará con la red a través del programa Postman de la siguiente manera:
+
+<img width="960" alt="Postamn" src="https://github.com/user-attachments/assets/745316d1-d8fc-4a0a-b2e7-000eec288ef1">
+
+Se detalla los metodos que se pueden utilizar.
+**Metodos API**
+`/finger_table`
+`/get_predecessor`
+`/get_successor`
+`/show_files`
+`/upload_file`
+`/download_file`
+`/search_file`
+`/shutdown`
+
+
+
+
 
 
 
