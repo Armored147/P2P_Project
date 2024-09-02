@@ -25,7 +25,7 @@ La actividad consiste en diseñar e implementar un sistema P2P (peer-to-peer) qu
 - Documentación.
 
 ## 1.2. Aspectos NO cumplidos o desarrollados
-- (Aquí se incluirían los aspectos que no se cumplieron o desarrollaron, si los hay.)
+El único aspecto que no se logró cumplir en el proyecto fue el despliegue completo de cuatro nodos en AWS. Esto se debió a una falla que no se pudo resolver, dejando este aspecto inconcluso. La falla presentada ocurrió cuando un tercer nodo se unía a la red, lo que provocaba que todos los servidores gRPC dejaran de responder y por lo tanto la red P2P se caia completamente.
 
 ### 2. Información general de diseño de alto nivel, arquitectura, patrones, mejores prácticas utilizadas
 El proyecto se cimenta sobre una red peer-to-peer (P2P) estructurada basada en el algoritmo Chord, que utiliza gRPC para la comunicación entre nodos.
@@ -177,21 +177,21 @@ y entrar
 cd P2P_Project
 ```
 
-**3. Crear la red docker**
+**3. Crear la red docker**  
 Para el correcto funcionamiento del proyecto, se debe crear una red para el contenedor.
 ```bash
 docker network create --driver=bridge --subnet=ip-publica-instancia/16 nombre-de-red
 ```
 En la bandera subnet, se esta creando una subred para el contenedor por lo tanto la ip debe finalizar en `0.0`
 
-**4. Modificar el archvido de configuracion Yaml**
+**4. Modificar el archvido de configuracion Yaml**  
 Si el peer que se va a unir a las red no es el master, es necesario editar el archivo de configuracion.
 ```bash
 nano ./config/peerSlave_config.yaml
 ```
 En él, se debe de editar el campo `ip: 0.0.0.0` y escribir la ip publica de la instancia EC2.
 
-**5. Crear la imagen Docker**
+**5. Crear la imagen Docker**  
 A continuacion se crea la imagen Docker a partir del dockerfile del proyecto.
 ```bash
 docker build -t test-aws .
@@ -242,6 +242,10 @@ Se detalla los metodos que se pueden utilizar.
 
 ### Referencias
 
+- [Chord (DHT) in Python](https://medium.com/princeton-systems-course/chord-dht-in-python-b8b8985cb80e)
+- [Flask HTTP methods, handle GET & POST requests](https://www.geeksforgeeks.org/flask-http-methods-handle-get-post-requests/)
+- [Diccionarios en Python](https://ellibrodepython.com/diccionarios-en-python)
+- [docker network create](https://docs.docker.com/reference/cli/docker/network/create/)
 
 
 
